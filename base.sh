@@ -11,6 +11,16 @@ pacman-key --init
 pacman-key --populate
 pacman -Syyy
 echo " "
+
+echo "-------------------------------------------------"
+echo "-----------Partitioning & Formatting-------------"
+echo "-------------------------------------------------"
+echo " "
+
+echo "Drives availiable in the system: "
 lsblk
+
+read -p "Drive to partition and format (example /dev/sda): " TARGET_DRIVE
+cfdisk $TARGET_DRIVE
 
 
