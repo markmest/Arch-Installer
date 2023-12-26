@@ -26,7 +26,7 @@ error_print () {
     echo -e "${BOLD}${BRED}[${BBLUE}•${BRED}] $1${RESET}"
 }
 
-info_print "Setting up mirrors for optimal download speed and generating new keyring."
+info_print "Setting up mirrors for optimal download speed."
 timedatectl set-ntp true
 loadkeys croat
 mv /etc/pacman.d/mirrorlist /etc/pacman.d/mirrorlist.backup
@@ -41,25 +41,58 @@ input_print "Drive to partition and format (example /dev/sda): "
 read -r TARGET_DRIVE
 cfdisk $TARGET_DRIVE
 
-info_print "Formatting /dev/sda1 as FAT32..."
-mkfs.fat -F32 /dev/sda1
+echo " "
+lsblk
+echo " "
 
-info_print "Formatting /dev/sda2 & /dev/sda3 as ext4..."
-mkfs.ext4 /dev/sda2 
-mkfs.ext4 /dev/sda3
-info_print "Mounting partitions to their respective mount points..."
-mount /dev/sda2 /mnt 
-mkdir /mnt/boot
-mkdir /mnt/home
-mount /dev/sda1 /mnt/boot
-mount /dev/sda3 /mnt/home
+input_print "Enter root partition (example /dev/sda2): "
+read -r ROOT_PART
+if [[ -n "$ROOT_PART" ]]; then
+	info_print "Formatting $ROOT_PART as ext4."
+	mkfs.ext4 $ROOT_PART
+	info_print "Mounting $ROOT_PART to /mnt."
+	mount $ROOT_PART /mnt
+fi
 
-info_print "Installing base packages..."
+input_print "Enter EFI partition (example /dev/sda1): "
+read -r EFI_PART
+if [[ -n "$EFI_PART" ]]; then
+	info_print "Formatting $EFI_PART as FAT32."
+	mkfs.fat -F32 $EFI_PART 
+	info_print "Mounting $EFI_PART to /mnt/boot."
+	mkdir /mnt/boot
+	mount $EFI_PART /mnt/boot
+fi
+
+
+input_print "Do you also have a home partition (y/n): "
+read -r HOME
+if [[ "$HOME" == "y" ]]; then
+	input_print "Enter home partition (example /dev/sda3): "
+	read -r HOME_PART
+	info_print "Formatting $HOME_PART as ext4."
+	mkfs.ext4 $HOME_PART
+	info_print "Mounting $HOME_PART to /mnt/home."
+	mkdir /mnt/home
+	mount $HOME_PART /mnt/home
+fi
+
+input_print "Do you also have a swap partition (y/n): "
+read -r SWAP
+if [[ "$SWAP" == "y" ]]; then
+	input_print "Enter swap partition (example /dev/sda4): "
+	read -r SWAP_PART
+	info_print "Formatting $SWAP_PART as swap."
+	info_print "Turning swap partition on."
+	mkswap $SWAP_PART
+	swapon $SWAP_PART
+
+info_print "Installing base packages and generating keyring."
 pacstrap -K /mnt base base-devel linux linux-firmware intel-ucode 
 
-info_print "Generating fstab file..."
+info_print "Generating fstab file."
 genfstab -U /mnt >> /mnt/etc/fstab
-info_print "Base system installed successfully."
+info_print "Base system installed successfully. Chrooting into the new installation."
 arch-chroot /mnt
 exit
 
