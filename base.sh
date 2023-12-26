@@ -42,12 +42,12 @@ hostname_selector() {
 
 # Setting up the user account and its password (function).
 user_acc () {
-    input_print "Please enter name for a user account (enter empty to not create one): "
+    input_print "Enter a name for a user account (enter empty to not create one): "
     read -r USERNAME
     if [[ -z "$USERNAME" ]]; then
         return 0
     fi
-    input_print "Please enter a password for $USERNAME: "
+    input_print "Enter a password for $USERNAME: "
     read -r -s USERPASS
     if [[ -z "$USERPASS" ]]; then
         echo
@@ -55,7 +55,7 @@ user_acc () {
         return 1
     fi
     echo
-    input_print "Please enter the password again: " 
+    input_print "Enter the password again: " 
     read -r -s USERPASS_CHECK
     echo
     if [[ "$USERPASS" != "$USERPASS_CHECK" ]]; then
@@ -76,7 +76,7 @@ root_acc () {
         return 1
     fi
     echo
-    input_print "Please enter the password again (you're not going to see it): " 
+    input_print "Enter the password again: " 
     read -r -s ROOT_CHECK
     echo
     if [[ "$ROOTPASS" != "$ROOT_CHECK" ]]; then
@@ -120,10 +120,10 @@ input_print "Enter EFI partition: "
 read -r EFI_PART
 if [[ -n "$EFI_PART" ]]; then
 	info_print "Formatting $EFI_PART as FAT32."
-	mkfs.fat -F32 $EFI_PART 
+	mkfs.fat -F32 $EFI_PART &>/dev/null 
 	info_print "Mounting $EFI_PART to /mnt/boot."
 	mkdir /mnt/boot
-	mount $EFI_PART /mnt/boot
+	mount $EFI_PART /mnt/boot 
 fi
 
 input_print "Do you also have a home partition (y/n): "
@@ -132,7 +132,7 @@ if [[ "$HOME" == "y" ]]; then
 	input_print "Enter home partition: "
 	read -r HOME_PART
 	info_print "Formatting $HOME_PART as ext4."
-	mkfs.ext4 $HOME_PART
+	mkfs.ext4 $HOME_PART &>/dev/null
 	info_print "Mounting $HOME_PART to /mnt/home."
 	mkdir /mnt/home
 	mount $HOME_PART /mnt/home
