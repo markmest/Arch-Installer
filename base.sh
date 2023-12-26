@@ -3,6 +3,9 @@
 # Clear the TTY.
 clear
 
+# Set a bigger font.
+setfont ter-v22b
+
 # Cosmetics (colours for text).
 BOLD='\e[1m'
 BRED='\e[91m'
@@ -188,7 +191,7 @@ arch-chroot /mnt /bin/bash -e <<EOF
 	# ...
 
 	# Installing GRUB
-	grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=GRUB &>/dev/null
+	grub-install --target=x86_64-efi --efi-directory=/boot/ --bootloader-id=GRUB &>/dev/null
 
 	# Create GRUB config file
 	grub-mkconfig -o /boot/grub/grub.cfg &>/dev/null
@@ -209,12 +212,13 @@ if [[ -n "$username" ]]; then
 	echo "$USERNAME:$USERPASS" | arch-chroot /mnt chpasswd
 fi
 
-info_print "Done!"
+info_print "Done! You may now reboot the system."
 input_print "Would you like to chroot into the installation to make further changes [y/n]: "
 read -r CHANGES
 if [[ "$CHANGES" == "y" ]]; then
 	arch-chroot /mnt
 else
+	umount -R /mnt
 	exit
 fi
 
