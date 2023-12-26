@@ -194,10 +194,10 @@ arch-chroot /mnt /bin/bash -e <<EOF
 	locale-gen &>/dev/null
 
 	# Installing GRUB
-	grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=GRUB 
+	grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=GRUB &>/dev/null 
 
 	# Create GRUB config file
-	grub-mkconfig -o /boot/grub/grub.cfg
+	grub-mkconfig -o /boot/grub/grub.cfg &>/dev/null
 
 EOF
 
@@ -206,7 +206,7 @@ info_print "Setting root password."
 echo "root:$ROOTPASS" | arch-chroot /mnt chpasswd
 
 # Setting user password.
-if [[ -n "$username" ]]; then
+if [[ -n "$USERNAME" ]]; then
 	# Enable sudo no password rights.
 	sed -i 's/^# %wheel ALL=(ALL) NOPASSWD: ALL/%wheel ALL=(ALL) NOPASSWD: ALL/' /etc/sudoers
 	info_print "Adding the user $USERNAME to the wheel group."
