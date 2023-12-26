@@ -83,6 +83,9 @@ root_acc () {
     return 0
 }
 
+# Set keyboard layout.
+loadkeys croat
+
 # Set up user/root passwords.
 until root_acc; do : ; done
 until user_acc; do : ; done
