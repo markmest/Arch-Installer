@@ -44,7 +44,7 @@ user_acc () {
     if [[ -z "$USERNAME" ]]; then
         return 0
     fi
-    input_print "Please enter a password for $USERNAME (you're not going to see the password): "
+    input_print "Please enter a password for $USERNAME: "
     read -r -s USERPASS
     if [[ -z "$USERPASS" ]]; then
         echo
@@ -52,7 +52,7 @@ user_acc () {
         return 1
     fi
     echo
-    input_print "Please enter the password again (you're not going to see it): " 
+    input_print "Please enter the password again: " 
     read -r -s USERPASS_CHECK
     echo
     if [[ "$USERPASS" != "$USERPASS_CHECK" ]]; then
@@ -83,17 +83,17 @@ root_acc () {
     return 0
 }
 
-# Grab hostname.
-until hostname_selector; do : ; done
-
 # Set up user/root passwords.
 until root_acc; do : ; done
 until user_acc; do : ; done
 
+# Grab hostname.
+until hostname_selector; do : ; done
+
 info_print "Drives availiable in the system: "
 lsblk
 
-input_print "Drive to partition and format (example /dev/sda): " 
+input_print "Drive to partition and format: " 
 read -r TARGET_DRIVE
 cfdisk $TARGET_DRIVE
 
@@ -101,7 +101,7 @@ echo " "
 lsblk
 echo " "
 
-input_print "Enter root partition (example /dev/sda2): "
+input_print "Enter root partition: "
 read -r ROOT_PART
 if [[ -n "$ROOT_PART" ]]; then
 	info_print "Formatting $ROOT_PART as ext4."
@@ -110,7 +110,7 @@ if [[ -n "$ROOT_PART" ]]; then
 	mount $ROOT_PART /mnt
 fi
 
-input_print "Enter EFI partition (example /dev/sda1): "
+input_print "Enter EFI partition: "
 read -r EFI_PART
 if [[ -n "$EFI_PART" ]]; then
 	info_print "Formatting $EFI_PART as FAT32."
@@ -123,7 +123,7 @@ fi
 input_print "Do you also have a home partition (y/n): "
 read -r HOME
 if [[ "$HOME" == "y" ]]; then
-	input_print "Enter home partition (example /dev/sda3): "
+	input_print "Enter home partition: "
 	read -r HOME_PART
 	info_print "Formatting $HOME_PART as ext4."
 	mkfs.ext4 $HOME_PART
@@ -135,7 +135,7 @@ fi
 input_print "Do you also have a swap partition (y/n): "
 read -r SWAP
 if [[ "$SWAP" == "y" ]]; then
-	input_print "Enter swap partition (example /dev/sda4): "
+	input_print "Enter swap partition: "
 	read -r SWAP_PART
 	info_print "Formatting $SWAP_PART as swap."
 	info_print "Turning swap partition on."
