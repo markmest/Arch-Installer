@@ -31,8 +31,6 @@ timedatectl set-ntp true
 loadkeys croat
 mv /etc/pacman.d/mirrorlist /etc/pacman.d/mirrorlist.backup
 reflector --country Croatia --age 6 --sort rate --save /etc/pacman.d/mirrorlist
-pacman-key --init 
-pacman-key --populate
 pacman -Syyy
 
 info_print "Partitioning and formatting."
@@ -57,7 +55,7 @@ mount /dev/sda1 /mnt/boot
 mount /dev/sda3 /mnt/home
 
 info_print "Installing base packages..."
-pacstrap /mnt base base-devel linux linux-firmware intel-ucode 
+pacstrap -K /mnt base base-devel linux linux-firmware intel-ucode 
 
 info_print "Generating fstab file..."
 genfstab -U /mnt >> /mnt/etc/fstab
