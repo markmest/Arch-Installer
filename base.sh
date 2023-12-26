@@ -156,12 +156,16 @@ fi
 
 # Install base packages and NetworkManager 
 info_print "Installing base packages and generating keyring."
-pacstrap -K /mnt base base-devel linux linux-firmware intel-ucode networkmanager &>/dev/null 
+pacstrap -K /mnt base base-devel linux linux-firmware intel-ucode networkmanager grub efibootmgr &>/dev/null 
 info_print "Enabling NetworkManager."
 systemctl enable NetworkManager --root=/mnt &>/dev/null
 
 # Set the hostname
 echo "$HOSTNAME" > /mnt/etc/hostname
+
+# Generating /etc/fstab.
+info_print "Generating a new fstab."
+genfstab -U /mnt >> /mnt/etc/fstab
 
 # Setting locale and console keymap
 sed -i 's/^#en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /mnt/etc/locale.gen
@@ -176,9 +180,6 @@ cat > /mnt/etc/hosts <<EOF
 127.0.1.1   $HOSTNAME.localdomain   $HOSTNAME
 EOF
 
-info_print "Generating fstab file."
-genfstab -U /mnt >> /mnt/etc/fstab
-
 # Configuring the system
 info_print "Configuring the system (timezone, system clock, packages, GRUB)."
 arch-chroot /mnt /bin/bash -e <<EOF
@@ -191,9 +192,6 @@ arch-chroot /mnt /bin/bash -e <<EOF
 
 	# Generating locales
 	locale-gen &>/dev/null
-
-	# Installing packages
-	pacman -S grub efibootmgr 
 
 	# Installing GRUB
 	grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=GRUB 
