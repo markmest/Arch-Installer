@@ -34,16 +34,20 @@ EOF
 read -p "Root password: " ROOT_PASS
 echo "root:$ROOT_PASS" | chpasswd
 
+useradd -m -G wheel mm 
+read -p "User password: " USER_PASS
+echo mm:$USER_PASS | chpasswd
+
+sed -i 's/^# %wheel ALL=(ALL) NOPASSWD: ALL/%wheel ALL=(ALL) NOPASSWD: ALL/' /etc/sudoers
+
 PGKS=(
-	'neofetch'
-	'neovim'
-	)
+	'grub'
+	'efibootmgr'
+	'networkmanager'
+)
 
 for PKG in "${PKGS[@]}"; do
-    echo "INSTALLING: ${PKG}"
+    echo "Installing: ${PKG}"
     sudo pacman -S "$PKG" --noconfirm --needed
 done
-
-
-
 
