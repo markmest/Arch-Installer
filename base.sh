@@ -85,6 +85,7 @@ if [[ "$SWAP" == "y" ]]; then
 	info_print "Turning swap partition on."
 	mkswap $SWAP_PART
 	swapon $SWAP_PART
+fi
 
 info_print "Installing base packages and generating keyring."
 pacstrap -K /mnt base base-devel linux linux-firmware intel-ucode 
