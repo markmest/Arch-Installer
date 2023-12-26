@@ -191,10 +191,10 @@ arch-chroot /mnt /bin/bash -e <<EOF
 	# ...
 
 	# Installing GRUB
-	grub-install --target=x86_64-efi --efi-directory=/boot/ --bootloader-id=GRUB &>/dev/null
+	grub-install --target=x86_64-efi --efi-directory=/boot/ --bootloader-id=GRUB 
 
 	# Create GRUB config file
-	grub-mkconfig -o /boot/grub/grub.cfg &>/dev/null
+	grub-mkconfig -o /boot/grub/grub.cfg
 
 EOF
 
