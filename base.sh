@@ -193,6 +193,9 @@ arch-chroot /mnt /bin/bash -e <<EOF
 	# Generating locales
 	locale-gen &>/dev/null
 
+	# Install packages
+	pacman -S neofetch
+
 	# Installing GRUB
 	grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=GRUB &>/dev/null 
 
