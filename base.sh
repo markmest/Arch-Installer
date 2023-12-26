@@ -23,4 +23,27 @@ lsblk
 read -p "Drive to partition and format (example /dev/sda): " TARGET_DRIVE
 cfdisk $TARGET_DRIVE
 
+echo "Current drive state: "
+lsblk
+echo " "
+
+echo "Formatting /dev/sda1 as FAT32..."
+mkfs.fat -F32 /dev/sda1
+
+echo "Formatting /dev/sda2 & /dev/sda3 as ext4..."
+mkfs.ext4 /dev/sda2 
+mkfs.ext4 /dev/sda3
+echo " "
+
+echo "-------------------------------------------------"
+echo "------Pacstrapping & Generating fstab file-------"
+echo "-------------------------------------------------"
+echo "Installing base packages..."
+pacstrap /mnt base base-devel linux linux-firmware intel-ucode neovim
+
+echo "Generating fstab file..."
+genfstab -U /mnt >> /mnt/etc/fstab
+
+
+
 
