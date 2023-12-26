@@ -26,12 +26,69 @@ error_print () {
     echo -e "${BOLD}${BRED}[${BBLUE}•${BRED}] $1${RESET}"
 }
 
-info_print "Setting up mirrors for optimal download speed."
-timedatectl set-ntp true
-loadkeys croat
-mv /etc/pacman.d/mirrorlist /etc/pacman.d/mirrorlist.bak
-reflector --country Croatia --age 6 --sort rate --save /etc/pacman.d/mirrorlist
-pacman -Syyy
+# Grab the hostname (function).
+hostname_selector() {
+	input_print "Enter the hostname: "
+	read -r HOSTNAME
+	if [[ -z "$HOSTNAME" ]]; then
+		error_print "Please enter a hostname to continue."
+		return 1
+	fi
+	return 0
+}
+
+# Setting up the user account and its password (function).
+user_acc () {
+    input_print "Please enter name for a user account (enter empty to not create one): "
+    read -r USERNAME
+    if [[ -z "$USERNAME" ]]; then
+        return 0
+    fi
+    input_print "Please enter a password for $USERNAME (you're not going to see the password): "
+    read -r -s USERPASS
+    if [[ -z "$USERPASS" ]]; then
+        echo
+        error_print "You need to enter a password for $USERNAME, please try again."
+        return 1
+    fi
+    echo
+    input_print "Please enter the password again (you're not going to see it): " 
+    read -r -s USERPASS_CHECK
+    echo
+    if [[ "$USERPASS" != "$USERPASS_CHECK" ]]; then
+        echo
+        error_print "Passwords don't match, please try again."
+        return 1
+    fi
+    return 0
+}
+
+# Setting up a root account and its password (function).
+root_acc () {
+    input_print "Enter a password for the root user: "
+    read -r -s ROOTPASS
+    if [[ -z "$ROOTPASS" ]]; then
+        echo
+        error_print "You need to enter a password for the root user, please try again."
+        return 1
+    fi
+    echo
+    input_print "Please enter the password again (you're not going to see it): " 
+    read -r -s ROOT_CHECK
+    echo
+    if [[ "$ROOTPASS" != "$ROOT_CHECK" ]]; then
+        error_print "Passwords don't match, please try again."
+        return 1
+    fi
+    return 0
+}
+
+# Grab hostname.
+until hostname_selector; do : ; done
+
+# Set up user/root passwords.
+until root_acc; do : ; done
+until user_acc; do : ; done
 
 info_print "Drives availiable in the system: "
 lsblk
@@ -63,7 +120,6 @@ if [[ -n "$EFI_PART" ]]; then
 	mount $EFI_PART /mnt/boot
 fi
 
-
 input_print "Do you also have a home partition (y/n): "
 read -r HOME
 if [[ "$HOME" == "y" ]]; then
@@ -87,13 +143,75 @@ if [[ "$SWAP" == "y" ]]; then
 	swapon $SWAP_PART
 fi
 
+# Install base packages and NetworkManager 
 info_print "Installing base packages and generating keyring."
-pacstrap -K /mnt base base-devel linux linux-firmware intel-ucode 
+pacstrap -K /mnt base base-devel linux linux-firmware intel-ucode networkmanager &>/dev/null 
+info_print "Enabling NetworkManager."
+systemctl enable NetworkManager --root=/mnt &>/dev/null
+
+# Set the hostname
+echo "$HOSTNAME" > /mnt/etc/hostname
+
+# Setting locale and console keymap
+sed -i 's/^#en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /mnt/etc/locale.gen
+echo "LANG=en_US.UTF-8" > /mnt/etc/locale.conf
+echo "KEYMAP=croat" > /mnt/etc/vconsole.conf
+
+# Setting hosts file.
+info_print "Setting hosts file."
+cat > /mnt/etc/hosts <<EOF
+127.0.0.1   localhost
+::1         localhost
+127.0.1.1   $HOSTNAME.localdomain   $HOSTNAME
+EOF
 
 info_print "Generating fstab file."
 genfstab -U /mnt >> /mnt/etc/fstab
-info_print "Base system installed successfully. Chrooting into the new installation."
-arch-chroot /mnt
-exit
 
+# Configuring the system
+info_print "Configuring the system (timezone, system clock, packages, GRUB)."
+arch-chroot /mnt /bin/bash -e <<EOF
+	
+	# Setting up timezone
+	ln -sf /usr/share/zoneinfo/Europe/Zagreb /etc/localtime &>/dev/null
+
+	# Setting up system clock
+	hwclock --systohc
+
+	# Generating locales
+	locale-gen &>/dev/null
+
+	# Installing packages
+	# ...
+
+	# Installing GRUB
+	grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=GRUB &>/dev/null
+
+	# Create GRUB config file
+	grub-mkconfig -o /boot/grub/grub.cfg &>/dev/null
+
+EOF
+
+# Setting root password.
+info_print "Setting root password."
+echo "root:$ROOTPASS" | arch-chroot /mnt chpasswd
+
+# Setting user password.
+if [[ -n "$username" ]]; then
+	# Enable sudo no password rights.
+	sed -i 's/^# %wheel ALL=(ALL) NOPASSWD: ALL/%wheel ALL=(ALL) NOPASSWD: ALL/' /etc/sudoers
+	info_print "Adding the user $USERNAME to the wheel group."
+	arch-chroot /mnt useradd -m -G wheel "$USERNAME"
+	info_print "Setting user password for $USERNAME."
+	echo "$USERNAME:$USERPASS" | arch-chroot /mnt chpasswd
+fi
+
+info_print "Done!"
+input_print "Would you like to chroot into the installation to make further changes [y/n]: "
+read -r CHANGES
+if [[ "$CHANGES" == "y" ]]; then
+	arch-chroot /mnt
+else
+	exit
+fi
 
