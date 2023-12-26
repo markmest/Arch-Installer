@@ -59,9 +59,7 @@ pacstrap -K /mnt base base-devel linux linux-firmware intel-ucode
 
 info_print "Generating fstab file..."
 genfstab -U /mnt >> /mnt/etc/fstab
-echo "-------------------------------------------------"
-echo "-----Base system installed successfully----------"
-echo "-------------------------------------------------"
+info_print "Base system installed successfully."
 arch-chroot /mnt
 exit
 
