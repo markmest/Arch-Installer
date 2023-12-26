@@ -208,7 +208,7 @@ echo "root:$ROOTPASS" | arch-chroot /mnt chpasswd
 # Setting user password and adding the user to the wheel group.
 if [[ -n "$USERNAME" ]]; then
 	# Enable sudo no password rights.
-	sed -i 's/^# %wheel ALL=(ALL) NOPASSWD: ALL/%wheel ALL=(ALL) NOPASSWD: ALL/' /mnt/etc/sudoers
+	echo "%wheel ALL=(ALL:ALL) NOPASSWD: ALL" > /mnt/etc/sudoers.d/wheel
 	info_print "Adding the user $USERNAME to the wheel group."
 	arch-chroot /mnt useradd -m -G wheel "$USERNAME"
 	info_print "Setting user password for $USERNAME."
