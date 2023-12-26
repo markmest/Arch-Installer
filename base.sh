@@ -89,12 +89,17 @@ root_acc () {
 # Set keyboard layout.
 loadkeys croat
 
-# Set up user/root passwords.
+# Setting up root account and password.
 until root_acc; do : ; done
+echo " "
+
+# Setting up user account and password.
 until user_acc; do : ; done
+echo " "
 
 # Grab hostname.
 until hostname_selector; do : ; done
+echo " "
 
 info_print "Drives availiable in the system: "
 lsblk
@@ -111,7 +116,7 @@ input_print "Enter root partition: "
 read -r ROOT_PART
 if [[ -n "$ROOT_PART" ]]; then
 	info_print "Formatting $ROOT_PART as ext4."
-	mkfs.ext4 $ROOT_PART
+	mkfs.ext4 $ROOT_PART &>/dev/null
 	info_print "Mounting $ROOT_PART to /mnt."
 	mount $ROOT_PART /mnt
 fi
@@ -191,7 +196,7 @@ arch-chroot /mnt /bin/bash -e <<EOF
 	pacman -S grub efibootmgr 
 
 	# Installing GRUB
-	grub-install --target=x86_64-efi --efi-directory=/boot/ --bootloader-id=GRUB 
+	grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=GRUB 
 
 	# Create GRUB config file
 	grub-mkconfig -o /boot/grub/grub.cfg
