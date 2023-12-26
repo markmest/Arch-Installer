@@ -45,7 +45,7 @@ echo "-------------------------------------------------"
 echo "------Pacstrapping & Generating fstab file-------"
 echo "-------------------------------------------------"
 echo "Installing base packages..."
-pacstrap /mnt base base-devel linux linux-firmware intel-ucode neovim
+pacstrap /mnt base base-devel linux linux-firmware intel-ucode 
 
 echo "Generating fstab file..."
 genfstab -U /mnt >> /mnt/etc/fstab
