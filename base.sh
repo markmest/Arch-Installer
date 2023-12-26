@@ -188,7 +188,7 @@ arch-chroot /mnt /bin/bash -e <<EOF
 	locale-gen &>/dev/null
 
 	# Installing packages
-	# ...
+	pacman -S grub efibootmgr 
 
 	# Installing GRUB
 	grub-install --target=x86_64-efi --efi-directory=/boot/ --bootloader-id=GRUB 
