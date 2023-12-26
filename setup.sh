@@ -31,7 +31,7 @@ cat > /etc/hosts <<EOF
 127.0.1.1   $HOSTNAME.localdomain   $HOSTNAME
 EOF
 
-read -p "Root password: "
+read -p "Root password: " ROOT_PASS
 echo "root:$ROOT_PASS" | chpasswd
 
 PGKS=(
