@@ -29,7 +29,7 @@ error_print () {
 info_print "Setting up mirrors for optimal download speed."
 timedatectl set-ntp true
 loadkeys croat
-mv /mnt/etc/pacman.d/mirrorlist /mnt/etc/pacman.d/mirrorlist.backup
+mv /etc/pacman.d/mirrorlist /etc/pacman.d/mirrorlist.bak
 reflector --country Croatia --age 6 --sort rate --save /etc/pacman.d/mirrorlist
 pacman -Syyy
 
