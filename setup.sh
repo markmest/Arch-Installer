@@ -38,7 +38,7 @@ useradd -m -G wheel mm
 read -p "User password: " USER_PASS
 echo mm:$USER_PASS | chpasswd
 
-sed -i 's/^# %wheel ALL=(ALL) NOPASSWD: ALL/%wheel ALL=(ALL) NOPASSWD: ALL/' /etc/sudoers
+echo "Setting up user privileges..." sed -i 's/^# %wheel ALL=(ALL) NOPASSWD: ALL/%wheel ALL=(ALL) NOPASSWD: ALL/' /etc/sudoers
 
 PGKS=(
 	'grub'
@@ -48,6 +48,12 @@ PGKS=(
 
 for PKG in "${PKGS[@]}"; do
     echo "Installing: ${PKG}"
-    sudo pacman -S "$PKG" --noconfirm --needed
+    pacman -S "$PKG" --noconfirm --needed
 done
+
+echo "Setting up bootloader..."
+rub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=GRUB 
+grub-mkconfig -o /boot/grub/grub.cfg
+
+echo "Done!"
 
