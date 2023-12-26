@@ -40,7 +40,7 @@ echo mm:$USER_PASS | chpasswd
 
 echo "Setting up user privileges..." sed -i 's/^# %wheel ALL=(ALL) NOPASSWD: ALL/%wheel ALL=(ALL) NOPASSWD: ALL/' /etc/sudoers
 
-PGKS=(
+PKGS=(
 	'grub'
 	'efibootmgr'
 	'networkmanager'
