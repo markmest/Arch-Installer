@@ -49,7 +49,10 @@ pacstrap /mnt base base-devel linux linux-firmware intel-ucode neovim
 
 echo "Generating fstab file..."
 genfstab -U /mnt >> /mnt/etc/fstab
-
-
+echo "-------------------------------------------------"
+echo "---------Moving into your new installation-------"
+echo "-------------------------------------------------"
+arch-chroot /mnt
+exit
 
 
