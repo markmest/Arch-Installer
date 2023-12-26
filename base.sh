@@ -33,6 +33,12 @@ mkfs.fat -F32 /dev/sda1
 echo "Formatting /dev/sda2 & /dev/sda3 as ext4..."
 mkfs.ext4 /dev/sda2 
 mkfs.ext4 /dev/sda3
+echo "Mounting partitions to their respective mount points..."
+mount /dev/sda2 /mnt 
+mkdir /mnt/boot
+mkdir /mnt/home
+mount /dev/sda1 /mnt/boot
+mount /dev/sda3 /mnt/home
 echo " "
 
 echo "-------------------------------------------------"
