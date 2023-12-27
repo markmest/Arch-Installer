@@ -150,7 +150,7 @@ if [[ "$SWAP" == "y" ]]; then
 	read -r SWAP_PART
 	info_print "Formatting $SWAP_PART as swap."
 	info_print "Turning swap partition on."
-	mkswap $SWAP_PART
+	mkswap $SWAP_PART &>/dev/null
 	swapon $SWAP_PART
 fi
 
