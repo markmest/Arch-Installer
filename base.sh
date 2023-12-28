@@ -156,9 +156,7 @@ fi
 
 # Install base packages and NetworkManager 
 info_print "Installing base packages and generating keyring."
-pacstrap -K /mnt base base-devel linux linux-firmware intel-ucode networkmanager grub efibootmgr &>/dev/null 
-info_print "Enabling NetworkManager."
-systemctl enable NetworkManager --root=/mnt &>/dev/null
+pacstrap -K /mnt base base-devel linux linux-firmware intel-ucode grub efibootmgr &>/dev/null 
 
 # Set the hostname
 echo "$HOSTNAME" > /mnt/etc/hostname
@@ -181,7 +179,7 @@ cat > /mnt/etc/hosts <<EOF
 EOF
 
 # Configuring the system
-info_print "Configuring the system (timezone, system clock, packages, GRUB)."
+info_print "Configuring the system (timezone, system clock, GRUB)."
 arch-chroot /mnt /bin/bash -e <<EOF
 	
 	# Setting up timezone
@@ -215,13 +213,45 @@ if [[ -n "$USERNAME" ]]; then
 	echo "$USERNAME:$USERPASS" | arch-chroot /mnt chpasswd
 fi
 
-info_print "Done! You may now reboot the system."
-input_print "Would you like to chroot into the installation to make further changes [y/n]: "
-read -r CHANGES
-if [[ "$CHANGES" == "y" ]]; then
-	arch-chroot /mnt
-else
-	umount -R /mnt
-	exit
-fi
+info_print "Chrooting into the base system and installing pacman packages."
+arch-chroot /mnt
+pacman -S networkmanager linux-headers reflector git blue bluez-utils neovim 
+info_print "Enabling services."
+systemctl enable NetworkManager
+systemctl enable bluetooth 
+info_print "Done!"
+exit
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
