@@ -238,7 +238,7 @@ fi
 
 info_print "Installing pacman packages."
 for PKG in "${PKGS[@]}"; do
-	echo "Installing: ${PKG}"
+	info_print "Installing: ${PKG}"
 	arch-chroot /mnt pacman -S "$PKG" --noconfirm --needed
 done
 
