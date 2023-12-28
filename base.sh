@@ -213,15 +213,12 @@ if [[ -n "$USERNAME" ]]; then
 	echo "$USERNAME:$USERPASS" | arch-chroot /mnt chpasswd
 fi
 
-info_print "Chrooting into the base system and installing pacman packages."
-arch-chroot /mnt
-pacman -S networkmanager linux-headers reflector git blue bluez-utils neovim 
-info_print "Enabling services."
-systemctl enable NetworkManager
-systemctl enable bluetooth 
+info_print "Installing pacman packages."
+arch-chroot /mnt pacman -S networkmanager linux-headers reflector git neovim firefox 
+info_print "Enabling NetworkManager."
+systemctl enable NetworkManager --root/mnt &>/dev/null
 info_print "Done!"
 exit
-
 
 
 
