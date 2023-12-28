@@ -214,9 +214,9 @@ if [[ -n "$USERNAME" ]]; then
 fi
 
 info_print "Installing pacman packages."
-arch-chroot /mnt pacman -S networkmanager linux-headers reflector git neovim firefox 
+arch-chroot /mnt pacman --noconfirm -S networkmanager linux-headers reflector git neovim 
 info_print "Enabling NetworkManager."
-systemctl enable NetworkManager --root/mnt &>/dev/null
+systemctl enable NetworkManager --root=/mnt &>/dev/null
 info_print "Done!"
 exit
 
