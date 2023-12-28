@@ -86,6 +86,29 @@ root_acc () {
     return 0
 }
 
+# Define the list of pacman packages to install
+PKGS=(
+	'networkmanager'
+	'linuxheaders'
+	'bluez'
+	'bluez-utils'
+	'alsa-utils'
+	'pipewire'
+	'pipewire-alsa'
+	'pipewire-pulse'
+	'pipewire-jack'
+	'rsync'
+	'reflector'
+	'neovim'
+	'firefox'
+	'nvidia'
+	'nvidia-utils'
+	'nvidia-settings'
+)
+
+# Define the services to autostart
+services=(NetworkManager bluetooth.service reflector.timer)
+
 # Set keyboard layout.
 loadkeys croat
 
@@ -156,7 +179,7 @@ fi
 
 # Install base packages and NetworkManager 
 info_print "Installing base packages and generating keyring."
-pacstrap -K /mnt base base-devel linux linux-firmware intel-ucode grub efibootmgr &>/dev/null 
+pacstrap -K /mnt base base-devel linux linux-firmware intel-ucode grub efibootmgr zsh &>/dev/null 
 
 # Set the hostname
 echo "$HOSTNAME" > /mnt/etc/hostname
@@ -208,47 +231,22 @@ if [[ -n "$USERNAME" ]]; then
 	# Enable sudo no password rights.
 	echo "%wheel ALL=(ALL:ALL) NOPASSWD: ALL" > /mnt/etc/sudoers.d/wheel
 	info_print "Adding the user $USERNAME to the wheel group."
-	arch-chroot /mnt useradd -m -G wheel "$USERNAME"
+	arch-chroot /mnt useradd -m -G wheel -s /usr/bin/zsh "$USERNAME"
 	info_print "Setting user password for $USERNAME."
 	echo "$USERNAME:$USERPASS" | arch-chroot /mnt chpasswd
 fi
 
 info_print "Installing pacman packages."
-arch-chroot /mnt pacman --noconfirm -S networkmanager linux-headers reflector git neovim 
-info_print "Enabling NetworkManager."
-systemctl enable NetworkManager --root=/mnt &>/dev/null
-info_print "Done!"
+for PKG in "${PKGS[@]}"; do
+	echo "Installing: ${PKG}"
+	arch-chroot /mnt pacman -S "$PKG" --noconfirm --needed
+done
+
+info_print "Enabling NetworkManager, reflector and bluetooth."
+for service in "${services[@]}"; do
+	systemctl enable "$service" --root=/mnt &>/dev/null
+done
+
+umount -R /mnt
+info_print "Done! You may now reboot the system"
 exit
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
